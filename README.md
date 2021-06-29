@@ -1,6 +1,7 @@
 # kconfig_diff
 It could check kconfig difference between kconfig1 and kconfig2, which better
 than diff file1 file2 results.
+config_kvm_i is config_itest!
 
 # ./kconfig_diff.sh config1 config_kvm
 ...
