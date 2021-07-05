@@ -58,6 +58,8 @@ prepare_kernel() {
     do_cmd "rm -rf $KERNEL_PATH"
     do_cmd "mkdir -p $KERNEL_PATH"
   }
+  do_cmd "cd $KERNEL_SOURCE"
+  do_cmd "git fetch origin"
 
   do_cmd "cp -rf $KERNEL_SOURCE $KERNEL_PATH"
   kernel_folder=$(echo $KERNEL_SOURCE | awk -F "/" '{print $NF}')
