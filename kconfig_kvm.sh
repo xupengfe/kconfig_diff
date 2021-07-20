@@ -78,17 +78,21 @@ convert_kconfig() {
   if [[ -n "$CONFIG_CHANGE" ]]; then
     change_kconfig "$CONFIG_ITEM" "$CONFIG_CHANGE"
   else
+    # syzkaller coverage collection
     change_kconfig "CONFIG_KCOV" "CONFIG_KCOV=y"
     change_kconfig "CONFIG_KCOV_INSTRUMENT_ALL" "CONFIG_KCOV_INSTRUMENT_ALL=y"
     change_kconfig "CONFIG_KCOV_ENABLE_COMPARISONS" "CONFIG_KCOV_ENABLE_COMPARISONS=y"
     change_kconfig "CONFIG_DEBUG_FS" "CONFIG_DEBUG_FS=y"
     change_kconfig CONFIG_CONFIGFS_FS	"CONFIG_CONFIGFS_FS=y"
     change_kconfig CONFIG_SECURITYFS	"CONFIG_SECURITYFS=y"
+    # set boot cmdline net.ifnames=0
     change_kconfig CONFIG_CMDLINE_BOOL	"CONFIG_CMDLINE_BOOL=y"
     change_kconfig CONFIG_CMDLINE "CONFIG_CMDLINE=\"net.ifnames=0\""
     change_kconfig CONFIG_RANDOMIZE_BASE "# CONFIG_RANDOMIZE_BASE is not set"
+    # syzkaller reduce false positive rate
     change_kconfig CONFIG_DEFAULT_HUNG_TASK_TIMEOUT	"CONFIG_DEFAULT_HUNG_TASK_TIMEOUT=140"
     change_kconfig CONFIG_RCU_CPU_STALL_TIMEOUT	"CONFIG_RCU_CPU_STALL_TIMEOUT=100"
+    # Some disk issue for bzImage
     change_kconfig CONFIG_BLK_DEV_RAM	"CONFIG_BLK_DEV_RAM=y"
     change_kconfig CONFIG_NFS_FS	"CONFIG_NFS_FS=y"
     change_kconfig CONFIG_NFS_V2	"CONFIG_NFS_V2=y"
@@ -100,6 +104,7 @@ convert_kconfig() {
     change_kconfig CONFIG_VIRTIO_BLK	"CONFIG_VIRTIO_BLK=y"
     change_kconfig CONFIG_VIRTIO_PCI	"CONFIG_VIRTIO_PCI=y"
     change_kconfig CONFIG_X86_CPUID		"CONFIG_X86_CPUID=y"
+    # QEMU net work for bzImage
     change_kconfig CONFIG_E100		"CONFIG_E100=y"
     change_kconfig CONFIG_E1000		"CONFIG_E1000=y"
     change_kconfig CONFIG_E1000E	"CONFIG_E1000E=y"
@@ -109,6 +114,11 @@ convert_kconfig() {
     change_kconfig CONFIG_USB_NET_DRIVERS	"CONFIG_USB_NET_DRIVERS=y"
     change_kconfig CONFIG_MOUSE_PS2		"CONFIG_MOUSE_PS2=y"
     change_kconfig CONFIG_FRAME_WARN	"CONFIG_FRAME_WARN=2048"
+    # Solve "Failed to mount /proc/sys/fs/binfmt_misc." issue in bzImage
+    change_kconfig CONFIG_BINFMT_MISC "CONFIG_BINFMT_MISC=y"
+    change_kconfig CONFIG_QFMT_V2 "CONFIG_QFMT_V2=y"
+    # mark kernel as kvm for syzkaller or kvm test
+    change_kconfig CONFIG_LOCALVERSION "CONFIG_LOCALVERSION=\"-kvm\""
   fi
   echo "diff $FILE_SRC $FILE_KVM"
   diff "$FILE_SRC" "$FILE_KVM"
