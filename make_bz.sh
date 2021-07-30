@@ -10,6 +10,11 @@ STATUS=""
 TIME_FMT="%m%d_%H%M%S"
 KCONFIG="https://raw.githubusercontent.com/xupengfe/kconfig_diff/main/config-5.13i_kvm"
 BASE_PATH=$(pwd)
+DATE_START=$(date +"$TIME_FMT")
+DATE_SS=$(date +%s)
+DATE_END=""
+DATE_ES=""
+USE_SEC=""
 
 usage() {
   cat <<__EOF
@@ -147,6 +152,13 @@ make_bzimage() {
   echo "kconfig_source:$KCONFIG" >> $STATUS
   echo "Destination:$DEST" >> $STATUS
   echo "bzImage:${DEST}/bzImage_${COMMIT}" >> $STATUS
+  echo "DATE_START:$DATE_START" >> $STATUS
+  DATE_END=$(date +"$TIME_FMT")
+  DATE_ES=$(date +%s)
+  echo "DATE_END:$DATE_END" >> $STATUS
+  USE_SEC=$(( $DATE_ES - $DATE_SS ))
+  echo "Used seconds:$USE_SEC sec" >> $STATUS
+  print_log "Used $USE_SEC seconds"
 }
 
 result=0
