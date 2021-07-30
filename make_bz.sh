@@ -101,7 +101,7 @@ prepare_kernel() {
   }
 
   kernel_target_path="${KERNEL_PATH}/${kernel_folder}"
-  [[ -d "$kernel_target_path" ]] && {
+  if [[ -d "$kernel_target_path" ]]; then
     do_cmd "cd $kernel_target_path"
     git checkout -f $COMMIT
     ret=$?
@@ -111,7 +111,9 @@ prepare_kernel() {
       print_log "git checkout -f $COMMIT failed:$ret, will copy $KERNEL_SRC"
       do_cmd "cp -rf $KERNEL_SRC $KERNEL_PATH"
     fi
-  }
+  else
+    do_cmd "cp -rf $KERNEL_SRC $KERNEL_PATH"
+  fi
 
   KERNEL_PATH="$kernel_target_path"
 }
@@ -124,8 +126,8 @@ prepare_kconfig() {
   do_cmd "wget $KCONFIG -O $KCONFIG_NAME"
   commit_short=$(echo ${COMMIT:0:12})
   print_log "commit 0-12:$commit_short"
-  do_cmd "./kconfig_kvm.sh $KCONFIG_NAME "CONFIG_LOCALVERSION" "CONFIG_LOCALVERSION=\"-${commit_short}\"""
-  do_cmd "cp -rf $KCONFIG_NAME .config"
+  do_cmd "./kconfig_kvm.sh $KCONFIG_NAME \"CONFIG_LOCALVERSION\" CONFIG_LOCALVERSION=\\\"-${commit_short}\\\""
+  do_cmd "cp -rf ${KCONFIG_NAME}_kvm .config"
   do_cmd "git checkout -f $COMMIT"
   do_cmd "make olddefconfig"
 }

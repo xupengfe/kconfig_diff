@@ -67,6 +67,8 @@ change_kconfig() {
 }
 
 convert_kconfig() {
+  diff_content=""
+
   [[ -z "$FILE_SRC" ]] && usage
   [[ -e "$FILE_SRC" ]] || {
     echo "No FILE_SRC:$FILE_SRC exist"
@@ -121,7 +123,8 @@ convert_kconfig() {
     change_kconfig CONFIG_LOCALVERSION "CONFIG_LOCALVERSION=\"-kvm\""
   fi
   echo "diff $FILE_SRC $FILE_KVM"
-  diff "$FILE_SRC" "$FILE_KVM"
+  diff_content=$(diff $FILE_SRC $FILE_KVM 2>/dev/null)
+  echo "$diff_content"
 }
 
 convert_kconfig
