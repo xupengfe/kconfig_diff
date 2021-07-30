@@ -8,7 +8,7 @@ KCONFIG_NAME="kconfig"
 RESULT=""
 STATUS=""
 TIME_FMT="%m%d_%H%M%S"
-KCONFIG="https://raw.githubusercontent.com/xupengfe/kconfig_diff/main/config-5.13i_kvm"
+KCONFIG="https://raw.githubusercontent.com/xupengfe/kconfig_diff/main/config_kvm_i"
 
 usage() {
   cat <<__EOF
