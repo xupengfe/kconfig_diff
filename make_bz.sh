@@ -138,7 +138,7 @@ make_bzimage() {
   cpu_num=$(cat /proc/cpuinfo | grep processor | wc -l)
   do_cmd "cd $KERNEL_PATH"
   do_cmd "make -j${cpu_num} bzImage"
-  do_cmd "cp -rf ${KERNEL_PATH}/arch/x86/boot/bzImage ${DEST}/bzImage${COMMIT}"
+  do_cmd "cp -rf ${KERNEL_PATH}/arch/x86/boot/bzImage ${DEST}/bzImage_${COMMIT}"
   print_log "PASS: make bzImage pass"
   print_log "PASS: make bzImage pass" >> $STATUS
   echo "source_kernel:$KERNEL_SRC" >> $STATUS
@@ -146,7 +146,7 @@ make_bzimage() {
   echo "commit:$COMMIT" >> $STATUS
   echo "kconfig_source:$KCONFIG" >> $STATUS
   echo "Destination:$DEST" >> $STATUS
-  echo "bzImage:${DEST}/bzImage${COMMIT}" >> $STATUS
+  echo "bzImage:${DEST}/bzImage_${COMMIT}" >> $STATUS
 }
 
 result=0
