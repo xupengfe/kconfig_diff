@@ -9,6 +9,7 @@ RESULT=""
 STATUS=""
 TIME_FMT="%m%d_%H%M%S"
 KCONFIG="https://raw.githubusercontent.com/xupengfe/kconfig_diff/main/config-5.13i_kvm"
+BASE_PATH=$(pwd)
 
 usage() {
   cat <<__EOF
@@ -50,40 +51,6 @@ do_cmd() {
   fi
 }
 
-fill_parm() {
-  local result=0
-
-  print_log "KERNEL_SRC:$KERNEL_SRC"
-  [[ -n "$KERNEL_SRC" ]] && [[ -n "$COMMIT" ]] && [[ -n "$DEST" ]] && result=1
-  print_log "result:$result"
-  if [[ "$result" == 1 ]]; then
-    print_log "Get parm: KERNEL_SRC=$KERNEL_SRC COMMIT=$COMMIT DEST=$DEST"
-  else
-    while getopts :k:m:c:d:h arg; do
-      case $arg in
-        k)
-          KERNEL_SRC=$OPTARG
-          ;;
-        m)
-          COMMIT=$OPTARG
-          ;;
-        c)
-          KCONFIG=$OPTARG
-          ;;
-        d)
-          DEST=$OPTARG
-          ;;
-        h)
-          usage
-          ;;
-        *)
-          usage
-          ;;
-      esac
-    done
-  fi
-}
-
 parm_check() {
   [[ -d "$DEST" ]]  || {
     print_log "DEST:$DEST folder is not exist!"
@@ -100,6 +67,12 @@ parm_check() {
     print_err "commit:$COMMIT is null."
     usage
   }
+  [[ -f "$BASE_PATH/kconfig_kvm.sh" ]] || {
+    print_err "no kconfig_kvm.sh in $BASE_PATH"
+    print_log "Plase put https://raw.githubusercontent.com/xupengfe/kconfig_diff/main/kconfig_kvm.sh into $BASE_PATH"
+    usage
+  }
+
 }
 
 prepare_kernel() {
@@ -144,8 +117,14 @@ prepare_kernel() {
 }
 
 prepare_kconfig() {
+  local commit_short=""
+
   do_cmd "cd $KERNEL_PATH"
+  do_cmd "cp -rf $BASE_PATH/kconfig_kvm.sh ./"
   do_cmd "wget $KCONFIG -O $KCONFIG_NAME"
+  commit_short=$(echo ${COMMIT:0:12})
+  print_log "commit 0-12:$commit_short"
+  do_cmd "./kconfig_kvm.sh $KCONFIG_NAME "CONFIG_LOCALVERSION" "CONFIG_LOCALVERSION=\"-${commit_short}\"""
   do_cmd "cp -rf $KCONFIG_NAME .config"
   do_cmd "git checkout -f $COMMIT"
   do_cmd "make olddefconfig"
@@ -168,8 +147,38 @@ make_bzimage() {
   echo "bzImage:${DEST}/bzImage${COMMIT}" >> $STATUS
 }
 
+result=0
+print_log "KERNEL_SRC:$KERNEL_SRC"
+[[ -n "$KERNEL_SRC" ]] && [[ -n "$COMMIT" ]] && [[ -n "$DEST" ]] && result=1
+print_log "result:$result"
+if [[ "$result" == 1 ]]; then
+  print_log "Get parm: KERNEL_SRC=$KERNEL_SRC COMMIT=$COMMIT DEST=$DEST"
+else
+  while getopts :k:m:c:d:h arg; do
+    case $arg in
+      k)
+        KERNEL_SRC=$OPTARG
+        ;;
+      m)
+        COMMIT=$OPTARG
+        ;;
+      c)
+        KCONFIG=$OPTARG
+        ;;
+      d)
+        DEST=$OPTARG
+        ;;
+      h)
+        usage
+        ;;
+      *)
+        usage
+        ;;
+    esac
+  done
+fi
+
 main() {
-  fill_parm
   parm_check
   prepare_kernel
   prepare_kconfig
