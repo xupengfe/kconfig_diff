@@ -8,7 +8,7 @@ KCONFIG_NAME="kconfig"
 RESULT=""
 STATUS=""
 TIME_FMT="%m%d_%H%M%S"
-KCONFIG="https://raw.githubusercontent.com/xupengfe/kconfig_diff/main/config_kvm_i"
+KCONFIG="https://raw.githubusercontent.com/xupengfe/kconfig_diff/main/config-5.13i_kvm"
 
 usage() {
   cat <<__EOF
@@ -104,17 +104,9 @@ parm_check() {
 
 prepare_kernel() {
   local kernel_folder=""
+  local kernel_target_path=""
+  local ret=""
 
-  [[ -d "$KERNEL_SRC" ]] || {
-    print_err "FAIL:KERNEL_SRC:$KERNEL_SRC folder is not exist"
-    usage
-  }
-  [[ -d "$KERNEL_PATH" ]] || {
-    do_cmd "rm -rf $KERNEL_PATH"
-    do_cmd "mkdir -p $KERNEL_PATH"
-  }
-
-  do_cmd "cp -rf $KERNEL_SRC $KERNEL_PATH"
   # Get last kernel source like /usr/src/os.linux.intelnext.kernel/
   kernel_folder=$(echo $KERNEL_SRC | awk -F "/" '{print $NF}')
   [[ -n "$kernel_folder" ]] || {
@@ -124,7 +116,31 @@ prepare_kernel() {
       usage
     }
   }
-  KERNEL_PATH="${KERNEL_PATH}/${kernel_folder}"
+
+  [[ -d "$KERNEL_SRC" ]] || {
+    print_err "FAIL:KERNEL_SRC:$KERNEL_SRC folder is not exist"
+    usage
+  }
+
+  [[ -d "$KERNEL_PATH" ]] || {
+    do_cmd "rm -rf $KERNEL_PATH"
+    do_cmd "mkdir -p $KERNEL_PATH"
+  }
+
+  kernel_target_path="${KERNEL_PATH}/${kernel_folder}"
+  [[ -d "$kernel_target_path" ]] && {
+    do_cmd "cd $kernel_target_path"
+    git checkout -f $COMMIT
+    ret=$?
+    if [[ "$ret" -eq 0 ]]; then
+      print_log "git checkout -f $COMMIT pass, no need copy $KERNEL_SRC again"
+    else
+      print_log "git checkout -f $COMMIT failed:$ret, will copy $KERNEL_SRC"
+      do_cmd "cp -rf $KERNEL_SRC $KERNEL_PATH"
+    fi
+  }
+
+  KERNEL_PATH="$kernel_target_path"
 }
 
 prepare_kconfig() {
@@ -141,7 +157,7 @@ make_bzimage() {
   cpu_num=$(cat /proc/cpuinfo | grep processor | wc -l)
   do_cmd "cd $KERNEL_PATH"
   do_cmd "make -j${cpu_num} bzImage"
-  do_cmd "cp -rf ${KERNEL_PATH}/arch/x86/boot/bzImage $DEST"
+  do_cmd "cp -rf ${KERNEL_PATH}/arch/x86/boot/bzImage ${DEST}/bzImage${COMMIT}"
   print_log "PASS: make bzImage pass"
   print_log "PASS: make bzImage pass" >> $STATUS
   echo "source_kernel:$KERNEL_SRC" >> $STATUS
@@ -149,6 +165,7 @@ make_bzimage() {
   echo "commit:$COMMIT" >> $STATUS
   echo "kconfig_source:$KCONFIG" >> $STATUS
   echo "Destination:$DEST" >> $STATUS
+  echo "bzImage:${DEST}/bzImage${COMMIT}" >> $STATUS
 }
 
 main() {
