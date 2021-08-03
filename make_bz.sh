@@ -108,12 +108,13 @@ prepare_kernel() {
   kernel_target_path="${KERNEL_PATH}/${kernel_folder}"
   if [[ -d "$kernel_target_path" ]]; then
     do_cmd "cd $kernel_target_path"
-    git checkout -f $COMMIT
-    ret=$?
-    if [[ "$ret" -eq 0 ]]; then
-      print_log "git checkout -f $COMMIT pass, no need copy $KERNEL_SRC again"
+
+    ret=$(git log "$commit" 2>/dev/null | head -n 1)
+
+    if [[ -n "$ret" ]]; then
+      print_log "git check $COMMIT pass, no need copy $KERNEL_SRC again"
     else
-      print_log "git checkout -f $COMMIT failed:$ret, will copy $KERNEL_SRC"
+      print_log "No $COMMIT exist in $kernel_target_path:$ret, will copy $KERNEL_SRC"
       do_cmd "cp -rf $KERNEL_SRC $KERNEL_PATH"
     fi
   else
