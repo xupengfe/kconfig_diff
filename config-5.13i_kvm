@@ -10876,7 +10876,7 @@ CONFIG_DEBUG_BUGVERBOSE=y
 #
 # Compile-time checks and compiler options
 #
-# CONFIG_DEBUG_INFO is not set
+CONFIG_DEBUG_INFO=y
 CONFIG_FRAME_WARN=2048
 # CONFIG_STRIP_ASM_SYMS is not set
 # CONFIG_READABLE_ASM is not set

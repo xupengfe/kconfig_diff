@@ -121,6 +121,8 @@ convert_kconfig() {
     change_kconfig CONFIG_QFMT_V2 "CONFIG_QFMT_V2=y"
     # mark kernel as kvm for syzkaller or kvm test
     change_kconfig CONFIG_LOCALVERSION "CONFIG_LOCALVERSION=\"-kvm\""
+    # decoding dwarf at offset 0x0: too short, generate coverage
+    change_kconfig CONFIG_DEBUG_INFO "CONFIG_DEBUG_INFO=y"
   fi
   echo "diff $FILE_SRC $FILE_KVM"
   diff_content=$(diff $FILE_SRC $FILE_KVM 2>/dev/null)
