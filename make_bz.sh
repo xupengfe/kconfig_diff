@@ -115,6 +115,7 @@ prepare_kernel() {
       print_log "git check $COMMIT pass, no need copy $KERNEL_SRC again"
     else
       print_log "No $COMMIT exist in $kernel_target_path:$ret, will copy $KERNEL_SRC"
+      do_cmd "rm -rf $kernel_target_path"
       do_cmd "cp -rf $KERNEL_SRC $KERNEL_PATH"
     fi
   else
