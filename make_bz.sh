@@ -58,7 +58,7 @@ do_cmd() {
 
 parm_check() {
   [[ -d "$DEST" ]]  || {
-    print_log "DEST:$DEST folder is not exist!"
+    print_log "DEST:$DEST folder does not exist!"
     usage
   }
   STATUS="${DEST}/status"
@@ -96,7 +96,7 @@ prepare_kernel() {
   }
 
   [[ -d "$KERNEL_SRC" ]] || {
-    print_err "FAIL:KERNEL_SRC:$KERNEL_SRC folder is not exist"
+    print_err "FAIL:KERNEL_SRC:$KERNEL_SRC folder does not exist"
     usage
   }
 
