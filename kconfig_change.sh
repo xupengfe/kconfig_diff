@@ -132,6 +132,8 @@ convert_kconfig() {
     change_kconfig CONFIG_USB_NET_DRIVERS	"CONFIG_USB_NET_DRIVERS=y"
     change_kconfig CONFIG_MOUSE_PS2		"CONFIG_MOUSE_PS2=y"
     change_kconfig CONFIG_FRAME_WARN	"CONFIG_FRAME_WARN=2048"
+    # QEMU virtual file system enabling
+    change_kconfig CONFIG_VIRTIO_FS  "CONFIG_VIRTIO_FS=y"
     # Solve "Failed to mount /proc/sys/fs/binfmt_misc." issue in bzImage
     change_kconfig CONFIG_BINFMT_MISC "CONFIG_BINFMT_MISC=y"
     change_kconfig CONFIG_QFMT_V2 "CONFIG_QFMT_V2=y"
