@@ -141,6 +141,7 @@ convert_kconfig() {
     change_kconfig CONFIG_LOCALVERSION "CONFIG_LOCALVERSION=\"-kvm\""
     # decoding dwarf at offset 0x0: too short, generate coverage
     change_kconfig CONFIG_DEBUG_INFO "CONFIG_DEBUG_INFO=y"
+    change_kconfig CONFIG_DEBUG_INFO_NONE "CONFIG_DEBUG_INFO_DWARF4=y"
   fi
   echo "diff $FILE_SRC $FILE_CHANGE"
   diff_content=$(diff $FILE_SRC $FILE_CHANGE 2>/dev/null)
