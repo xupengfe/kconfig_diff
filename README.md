@@ -4,6 +4,12 @@ than diff file1 file2 results.
 config_kvm_i is config_itest!
 
 # ./kconfig_diff.sh config1 config_kvm
+
+Command manually test:
+./kconfig_kvm.sh   config_thomas  CONFIG_LOCALVERSION CONFIG_LOCALVERSION=\"-aaa\"
+Script way:
+./kconfig_kvm.sh config_thomas \"CONFIG_LOCALVERSION\" CONFIG_LOCALVERSION=\\\"-${commit_short}\\\"
+
 ...
 --------------Summary--------------
 Only exist in config1 items in only1, 5423 items.
