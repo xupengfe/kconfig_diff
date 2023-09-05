@@ -4,6 +4,14 @@ FILE1=$1
 FILE2=$2
 DEF_ITEM=$3
 
+usage() {
+  cat <<__EOF
+  usage: ./${0##*/}  [file1] [file2] [column_num(optional)]
+  column_num: (optional) default num is 1
+__EOF
+  exit 2
+}
+
 [[ -z "$DEF_ITEM" ]] && DEF_ITEM=1
 
 diff_cases() {
@@ -19,9 +27,18 @@ diff_cases() {
   local check=""
   local num=0
 
+  [[ -e "$file1_ori" ]] || {
+    echo "No file:$file1_ori exist"
+    usage
+  }
+  [[ -e "$file2_ori" ]] || {
+    echo "No compared file:$file2_ori exist"
+    usage
+  }
+
   echo "Check $file1_ori has but $file2_ori doesn't have items."
-  cut -d " " -f "$column" "$file1_ori" | grep -v "-" > "$file_a"
-  cut -d " " -f "$column" "$file2_ori" | grep -v "-" > "$file_b"
+  awk -F " " '{print $'$column'}' "$file1_ori" | grep -v "-" > "$file_a"
+  awk -F " " '{print $'$column'}' "$file2_ori" | grep -v "-" > "$file_b"
   cat /dev/null > "$file_ab"
   cases=$(cat "$file_a")
   for case in $cases; do
