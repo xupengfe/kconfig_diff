@@ -42,7 +42,7 @@ diff_cases() {
   cat /dev/null > "$file_ab"
   cases=$(cat "$file_a")
   for case in $cases; do
-    check=$(grep "$case"$ "$file_b")
+    check=$(grep ^"$case"$ "$file_b")
     if [[ -z "$check" ]]; then
       echo "$case | $file1_ori($file_a) contains, $file2_ori($file_b) doesn't contain"
       echo "$case | $file1_ori($file_a) contains, $file2_ori($file_b) doesn't contain" >> "$file_ab"
