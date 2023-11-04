@@ -36,7 +36,7 @@ compare_diff2() {
   }
 
   # obj: "CONFIG_XX=X"  or "# CONFIG_XX is not set", target: "CONFIG_XX"
-  fil_diff2=$(cat $DIFF2 | grep ^"$target")
+  fil_diff2=$(cat $DIFF2 | grep "$target")
   fil_diff2_eq=$(echo "$fil_diff2" | grep "${target}=")
 
   if [[ -z "$fil_diff2" ]]; then
@@ -136,11 +136,11 @@ show_diff() {
 
   echo "--------------Summary--------------"
   num=$(cat $ONLY1 | wc -l)
-  echo "Only exist in $FILE1 items in $ONLY1, $num items."
+  echo "Only exist in \"$FILE1\" items in \"$ONLY1\": $num items."
   num=$(cat $CHANGE12 | wc -l)
-  echo "$FILE1 changed to $FILE2 in $CHANGE12, $num items."
+  echo "\"$FILE1\" changed to \"$FILE2\" in \"$CHANGE12\": $num items."
   num=$(cat $ONLY2 | wc -l)
-  echo "Only exist in $FILE2 items in $ONLY2, $num items."
+  echo "Only exist in \"$FILE2\" items in \"$ONLY2\": $num items."
   [[ "$err_num" -eq 0 ]] || {
     echo "There is unexpected error! err_num:$err_num, please check $ERR_LOG!"
     exit 1
