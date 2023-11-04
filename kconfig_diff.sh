@@ -8,8 +8,10 @@ FILE2=$2
 ONLY1="only1"
 ONLY2="only2"
 CHANGE12="change12"
+DIFF_FILE12="diff_${FILE1}_${FILE2}"
 DIFF1="diff1"
 DIFF2="diff2"
+ERR_LOG="error.log"
 
 usage(){
   cat <<__EOF
@@ -24,9 +26,17 @@ compare_diff2() {
   local fil_diff2=""
   local fil_diff2_eq=""
   local fil_diff2_is=""
+  local check_same=""
 
-  # echo "  Check obj:$obj target:$target"
-  fil_diff2=$(cat $DIFF2 | grep "$target")
+  # If diff1 and diff2 have all the same item, will remove it in only2 and return
+  check_same=$(cat $DIFF2 | grep ^"$obj")
+  [[ -z "$check_same" ]] || {
+    sed -i "s/^$obj//g" $ONLY2
+    return 0
+  }
+
+  # obj: "CONFIG_XX=X"  or "# CONFIG_XX is not set", target: "CONFIG_XX"
+  fil_diff2=$(cat $DIFF2 | grep ^"$target")
   fil_diff2_eq=$(echo "$fil_diff2" | grep "${target}=")
 
   if [[ -z "$fil_diff2" ]]; then
@@ -57,6 +67,7 @@ show_diff() {
   local item=""
   local it=""
   local num=""
+  local err_num=0
 
   [[ -z "$FILE1" ]] || [[ -z "$FILE2" ]] && usage
   [[ -e "$FILE1" ]] || {
@@ -71,22 +82,22 @@ show_diff() {
   cat /dev/null > $ONLY1
   cat /dev/null > $ONLY2
   cat /dev/null > $CHANGE12
+  cat /dev/null > $ERR_LOG
 
-  all_diff=$(diff "$FILE1" "$FILE2")
+  diff "$FILE1" "$FILE2" > "$DIFF_FILE12"
+  all_diff=$(cat "$DIFF_FILE12")
   [[ -n "$all_diff" ]] || {
     echo "$FILE1 $FILE2 all the same, no diff:$all_diff"
     exit 0
   }
 
-  diff "$FILE1" "$FILE2" \
-    | grep "^<" \
+  grep "^<" "$DIFF_FILE12" \
     | grep "CONFIG" \
     | awk -F "< " '{print $2}' \
     > $DIFF1
   # sed -i 's/^# //g' $DIFF1
 
-  diff "$FILE1" "$FILE2" \
-    | grep "^>" \
+  grep "^>" "$DIFF_FILE12" \
     | grep "CONFIG" \
     | awk -F "> " '{print $2}' \
     > $DIFF2
@@ -111,7 +122,8 @@ show_diff() {
       compare_diff2 "$item" "$it"
       continue
     }
-    echo "WARN: No keyword 'is not' or '=' in item:$item"
+    echo "ERROR: No keyword 'is not' or '=' in item:$item" && ((err_num++))
+    echo "ERROR: No keyword 'is not' or '=' in item:$item" >> "$ERR_LOG"
   done
 
   sed -i "/^[  ]*$/d" $ONLY2
@@ -129,7 +141,10 @@ show_diff() {
   echo "$FILE1 changed to $FILE2 in $CHANGE12, $num items."
   num=$(cat $ONLY2 | wc -l)
   echo "Only exist in $FILE2 items in $ONLY2, $num items."
-
+  [[ "$err_num" -eq 0 ]] || {
+    echo "There is unexpected error! err_num:$err_num, please check $ERR_LOG!"
+    exit 1
+  }
 }
 
 show_diff
