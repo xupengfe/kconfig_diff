@@ -1,9 +1,13 @@
 #!/bin/bash
 
 bzimage=$1
-KERNEL="vmlinuz-6.10.0-2024-07-15-intel-next-qemucxl+"
-INITRAMFS="initramfs-6.10.0-2024-07-15-intel-next-qemucxl+.img"
-IMAGE="/root/image/cxl_x2.img"
+#KNAME="6.10.0-2024-07-15-intel-next-qemucxl+"
+KNAME="6.10.0-qemucxl"
+KERNEL="vmlinuz-${KNAME}"
+#KERNEL="vmlinuz-6.10.0-2024-07-15-intel-next-qemucxl+"
+INITRAMFS="initramfs-${KNAME}.img"
+#IMAGE="/root/image/cxl_x2.img"
+IMAGE="/root/image/cxl_v6.10m.img"
 [[ -z "$PORT" ]] && PORT=10026
 
 
@@ -23,7 +27,7 @@ qemu-system-x86_64 \
 	-drive file=${IMAGE},format=raw,media=disk \
 	-kernel $KERNEL \
 	-initrd $INITRAMFS \
-	-append "selinux=0 audit=0 console=tty0 console=ttyS0 root=/dev/sda2 ignore_loglevel rw memory_hotplug.memmap_on_memory=force cxl_acpi.dyndbg=+fplm cxl_pci.dyndbg=+fplm cxl_core.dyndbg=+fplm cxl_mem.dyndbg=+fplm cxl_pmem.dyndbg=+fplm cxl_port.dyndbg=+fplm cxl_region.dyndbg=+fplm cxl_test.dyndbg=+fplm cxl_mock.dyndbg=+fplm cxl_mock_mem.dyndbg=+fplm memmap=2G!4G efi_fake_mem=2G@6G:0x40000" \
+	-append "selinux=0 audit=0 console=tty0 console=ttyS0 root=/dev/sda2 ignore_loglevel rw memory_hotplug.memmap_on_memory=force cxl_acpi.dyndbg=+fplm cxl_pci.dyndbg=+fplm cxl_core.dyndbg=+fplm cxl_mem.dyndbg=+fplm cxl_pmem.dyndbg=+fplm cxl_port.dyndbg=+fplm cxl_region.dyndbg=+fplm cxl_test.dyndbg=+fplm cxl_mock.dyndbg=+fplm cxl_mock_mem.dyndbg=+fplm memmap=2G!4G efi_fake_mem=2G@6G:0x40000 initcall_debug log_buf_len=20M" \
 	-device e1000,netdev=net0,mac=52:54:00:12:34:56 \
 	-netdev user,id=net0,hostfwd=tcp::${PORT}-:22 \
 	-object memory-backend-file,id=cxl-mem0,share=on,mem-path=cxltest0.raw,size=256M \
@@ -94,5 +98,5 @@ qemu-system-x86_64 \
 	-numa dist,src=3,dst=5,val=28 \
 	-numa dist,src=4,dst=4,val=10 \
 	-numa dist,src=4,dst=5,val=28 \
-	-numa dist,src=5,dst=5,val=10 2>&1 | tee vm3.log
+	-numa dist,src=5,dst=5,val=10 2>&1 | tee cxl_vm.log
 
