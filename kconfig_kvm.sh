@@ -5,6 +5,7 @@
 FILE_SRC=$1
 CONFIG_ITEM=$2
 CONFIG_CHANGE=$3
+FORCE=$4
 FILE_KVM="${FILE_SRC}_kvm"
 FIND_CONFIG_LINE=""
 
@@ -74,12 +75,18 @@ convert_kconfig() {
     echo "No FILE_SRC:$FILE_SRC exist"
     usage
   }
-  echo "cp -rf $FILE_SRC $FILE_KVM"
-  cp -rf $FILE_SRC $FILE_KVM
 
+  if [[ ! -e "$FILE_KVM" ]] || [[ -n "$FORCE" ]]; then
+    echo "cp -rf $FILE_SRC $FILE_KVM"
+    cp -rf $FILE_SRC $FILE_KVM
+  fi
+
+  # If there is changed kconfig target item, will modify the kconfig file directly
   if [[ -n "$CONFIG_CHANGE" ]]; then
     change_kconfig "$CONFIG_ITEM" "$CONFIG_CHANGE"
   else
+    echo "cp -rf $FILE_SRC $FILE_KVM"
+    cp -rf $FILE_SRC $FILE_KVM
     # syzkaller coverage collection
     change_kconfig "CONFIG_KCOV" "CONFIG_KCOV=y"
     change_kconfig "CONFIG_KCOV_INSTRUMENT_ALL" "CONFIG_KCOV_INSTRUMENT_ALL=y"
