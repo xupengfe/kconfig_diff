@@ -1,5 +1,6 @@
 #!/bin/bash
 # SPDX-License-Identifier: GPL-2.0
+# Author: Xu Pengfei <jingchang.xpf@alibaba-inc.com>
 # It's a tool which could convert any kconfig file for QEMU or syzkaller test
 
 FILE_SRC=$1
@@ -45,6 +46,7 @@ change_kconfig() {
   local config_item=$1
   local config_target=$2
   local config_item_solve=""
+  local find_line_improve=""
 
   if [[ "$config_item" == *"="* ]]; then
     echo "$config_item contain ="
@@ -61,8 +63,9 @@ change_kconfig() {
     if [[ "$FIND_CONFIG_LINE" == "$config_target" ]]; then
       echo "|$FIND_CONFIG_LINE| is same as target |$config_target|"
     else
-      echo "sed -i 's/${FIND_CONFIG_LINE}/${config_target}/g' $FILE_KVM"
-      sed -i s/"${FIND_CONFIG_LINE}"/"${config_target}"/g $FILE_KVM
+      find_line_improve=$(echo "$FIND_CONFIG_LINE" | sed 's/\//\\\//g')
+      echo "sed -i 's/${find_line_improve}/${config_target}/g' $FILE_KVM"
+      sed -i s/"${find_line_improve}"/"${config_target}"/g $FILE_KVM
     fi
   fi
 }
