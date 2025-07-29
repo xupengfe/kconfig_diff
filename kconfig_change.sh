@@ -203,6 +203,7 @@ check_change() {
   fi
 
   echo "After changed file:${BASE_PATH}/$FILE_CHANGE, after make menuconfig file:$KCONFIG_COMPARE"
+  exit $num
 }
 
 
@@ -220,6 +221,7 @@ while getopts :f:k:i:t:h arg; do
       ;;
     t)
       CONFIG_CHANGE=$OPTARG
+      CONFIG_ITEM=$(echo "$CONFIG_CHANGE" | cut -d'=' -f1)
       ;;
     h)
       usage
